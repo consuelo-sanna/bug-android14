@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 /**
  * Sample React Native App
  * https://github.com/facebook/react-native
@@ -5,9 +6,10 @@
  * @format
  */
 
-import React from 'react';
-import type {PropsWithChildren} from 'react';
+import React, {useEffect} from 'react';
+import type {EffectCallback, PropsWithChildren} from 'react';
 import {
+  Alert,
   SafeAreaView,
   ScrollView,
   StatusBar,
@@ -31,6 +33,58 @@ type SectionProps = PropsWithChildren<{
 
 function Section({children, title}: SectionProps): React.JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
+
+  useEffect((): ReturnType<EffectCallback> => {
+    async function fetchData() {
+      try {
+        __DEV__ && console.log('try fetchData start');
+        const startDate = new Date();
+
+        fetch(
+            'https://catfact.ninja/fact',
+            {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            },
+          )
+            .then(response => response.json())
+            .then(json => {
+              const endDate = new Date();
+              __DEV__ && console.log('test json: ',json)
+
+              Alert.alert('Response back','Got Response OK', [
+                {
+                  text: `Time: ${
+                    (endDate.getTime() - startDate.getTime()) / 1000
+                  }`,
+                  style: 'cancel',
+                },
+                {text: 'OK', onPress: () => {}},
+              ]);
+            })
+            .catch(() => {
+              Alert.alert('Error back', 'error', [
+                {text: 'OK', onPress: () => {}},
+              ]);
+            });
+      } catch (error) {
+        // error fetching data at start  [Error: Error: Sign in unavailable]
+        Alert.alert('Error back', 'error', [
+          {text: 'OK', onPress: () => {}},
+        ]);
+      }
+    }
+
+    fetchData().catch(() => {
+      // error fetching data at start  [Error: TypeError: Cannot read property 'kind' of undefined
+      Alert.alert('Error back', 'error', [
+        {text: 'OK', onPress: () => {}},
+      ]);
+    });
+  }, []);
+
   return (
     <View style={styles.sectionContainer}>
       <Text
